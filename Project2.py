@@ -103,18 +103,21 @@ def get_book_summary(book_url):
     You can easily capture CSS selectors with your browser's inspector window.
     Make sure to strip() any newlines from the book title and number of pages.
     """
-
+    #requesting the url to read through
     r = requests.get(book_url)
     soup = BeautifulSoup(r.text, 'html.parser')
 
+    #looking for the title tag and since there is only 1, we don't need multiple loops
     title_tag = soup.find('h1', {"id": "bookTitle"})
     title = title_tag.text.strip()
+    #finding the book authors with the specific ID
     author_tag = soup.find('div', {'id': 'bookAuthors'})
     spans = author_tag.find_all('span')
     author = spans[1].text.strip()
 
     num_pages_tag = soup.find('span', {'itemprop': 'numberOfPages'})
     num_pages = num_pages_tag.text.strip()
+    #splitting the number of pages at the space so we can take out the 'pages' at the end
     num_pages_list = num_pages.split()
     num = num_pages_list[0]
     num_pages_int = int(num)
@@ -141,11 +144,13 @@ def summarize_best_books(filepath):
     with open(filepath, 'r') as f:
         soup = BeautifulSoup(f,'html.parser')
     categories_section = soup.find('div',{"class": "categoryContainer"})
+    #found the class name from inspecting the element with the categories
     categories = categories_section.find_all('div', {"class": "category clearFix"})
     best_book = []
 
     for category in categories:
         url_tag = category.find('a')
+        #trying to find the URL in each genre
         url = url_tag['href']
         title_tag = category.find('h4', {"class": 'category__copy'})
         title = title_tag.text.strip()
